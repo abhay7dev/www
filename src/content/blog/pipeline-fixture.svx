@@ -1,0 +1,64 @@
+---
+title: Pipeline fixture
+date: 2026-11-15
+description: Test fixture exercising the blog pipeline. Not real content; always a draft.
+draft: true
+---
+
+FIXTURE: this file exists to verify the build pipeline. It is a draft and never ships.
+
+## Text
+
+Plain paragraph with **bold**, *italic*, ***both***, `inline code`, and a footnote[^note].
+
+[^note]: FIXTURE footnote text.
+
+### Math
+
+Inline $\frac{a}{b} + x^{2}$ and display:
+
+$$
+\sum_{i=0}^{n} i = \frac{n(n+1)}{2}
+$$
+
+## Callouts
+
+> [!NOTE]
+> FIXTURE note callout.
+
+> [!DANGER]
+> FIXTURE danger callout.
+
+## Code
+
+```js
+const o = { a: `template ${1}` }; // braces and backticks
+```
+
+```
+untagged block with {braces}
+```
+
+```mermaid
+graph TD
+  A[Fixture] --> B[Diagram]
+```
+
+## Table and dropdown
+
+| Column | Value |
+| --- | --- |
+| `x = {y}` | 2 |
+
+<details>
+<summary>FIXTURE dropdown</summary>
+
+Hidden **content**.
+
+</details>
+
+## Images
+
+![FIXTURE raster sample](./pipeline-fixture/sample.png "FIXTURE caption")
+
+![FIXTURE vector sample](./pipeline-fixture/sample.svg)

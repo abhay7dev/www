@@ -1,0 +1,8 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"checkJs": false,
+		"types": ["$app/types"]
+	},
+	"include": ["src", "scripts", "vite.config.js", "prettier.config.js", "eslint.config.js"]
+}

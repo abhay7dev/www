@@ -1,0 +1,42 @@
+---
+title: Fixture grouped post
+date: 2026-11-14
+description: Test fixture for a post inside a group, exercising components. Not real content; always a draft.
+draft: true
+---
+
+<script>
+	import Callout from '#lib/components/content/Callout.svelte';
+	import Tabs from '#lib/components/content/Tabs.svelte';
+	import Tab from '#lib/components/content/Tab.svelte';
+	import YouTube from '#lib/components/content/YouTube.svelte';
+	import Tweet from '#lib/components/content/Tweet.svelte';
+	import Interactive from '#lib/components/content/Interactive.svelte';
+
+	let count = $state(0);
+</script>
+
+FIXTURE: grouped post exercising components.
+
+## Callout component
+
+<Callout type="tip">FIXTURE tip from the component.</Callout>
+
+## Tabs
+
+<Tabs label="FIXTURE tabs">
+	<Tab label="First">FIXTURE first panel.</Tab>
+	<Tab label="Second">FIXTURE second panel.</Tab>
+</Tabs>
+
+## Inline demo
+
+<Interactive>
+	<button type="button" onclick={() => count++}>FIXTURE clicked {count} times</button>
+</Interactive>
+
+## Embeds
+
+<YouTube id="aqz-KE-bpKQ" title="FIXTURE video" />
+
+<Tweet url="https://x.com/example/status/1" author="FIXTURE author" date="Jan 1, 2026">FIXTURE post text.</Tweet>

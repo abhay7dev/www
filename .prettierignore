@@ -1,0 +1,6 @@
+bun.lock
+/static/
+/src/fonts/
+# Docs are hand-formatted; articles (.svx) are not understood by Prettier.
+*.md
+*.svx

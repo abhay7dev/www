@@ -1,0 +1,9 @@
+{
+	"name": "Abhay Bhat",
+	"short_name": "Abhay Bhat",
+	"start_url": "/",
+	"display": "browser",
+	"background_color": "#1e1e2e",
+	"theme_color": "#1e1e2e",
+	"icons": [{ "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" }]
+}

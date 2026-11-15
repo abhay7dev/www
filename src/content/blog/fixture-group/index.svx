@@ -1,0 +1,6 @@
+---
+title: Fixture group
+description: Test fixture group landing page. Not real content.
+---
+
+FIXTURE: group landing page body.

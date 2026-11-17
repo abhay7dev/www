@@ -1,7 +1,8 @@
 import { escapeSvelte } from 'mdsvex';
 import { bundledLanguages, createHighlighter } from 'shiki';
 
-const THEME = 'catppuccin-mocha';
+// Dual theme: tokens get light-dark() colors, so code follows the page's color-scheme.
+const THEMES = { light: 'catppuccin-latte', dark: 'catppuccin-mocha' };
 const PLAIN = new Set(['', 'text', 'txt', 'plain', 'plaintext']);
 
 const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -21,11 +22,18 @@ export async function highlight(code, lang) {
 			`<div class="mermaid" data-mermaid=""><pre><code>${escapeHtml(code)}</code></pre></div>`
 		);
 	}
-	highlighter ??= createHighlighter({ themes: [THEME], langs: [] });
+	highlighter ??= createHighlighter({ themes: Object.values(THEMES), langs: [] });
 	const shiki = await highlighter;
 	if (!PLAIN.has(lang)) {
 		if (!(lang in bundledLanguages)) throw new Error(`Unknown code block language "${lang}"`);
 		if (!shiki.getLoadedLanguages().includes(lang)) await shiki.loadLanguage(lang);
 	}
-	return asSvelte(shiki.codeToHtml(code, { lang: PLAIN.has(lang) ? 'text' : lang, theme: THEME }));
+	const html = shiki.codeToHtml(code, {
+		lang: PLAIN.has(lang) ? 'text' : lang,
+		themes: THEMES,
+		defaultColor: 'light-dark()'
+	});
+	// The header holds the language label; the article adds a copy button to it with JavaScript.
+	const label = PLAIN.has(lang) ? '' : `<span class="code-lang">${escapeHtml(lang)}</span>`;
+	return asSvelte(`<div class="code-block"><div class="code-head">${label}</div>${html}</div>`);
 }

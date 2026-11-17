@@ -27,9 +27,24 @@
 			url: 'https://github.com/mermaid-js/mermaid'
 		},
 		{
-			name: 'Catppuccin Mocha palette and code theme (via Shiki)',
+			name: 'Catppuccin palette (Latte and Mocha) and code themes',
 			license: 'MIT',
 			url: 'https://github.com/catppuccin/catppuccin'
+		},
+		{
+			name: 'Tabler Icons',
+			license: 'MIT',
+			url: 'https://github.com/tabler/tabler-icons'
+		},
+		{
+			name: 'giscus (comments widget and Catppuccin themes)',
+			license: 'MIT',
+			url: 'https://github.com/giscus/giscus'
+		},
+		{
+			name: 'Lit (used by the giscus widget)',
+			license: 'BSD-3-Clause',
+			url: 'https://github.com/lit/lit'
 		}
 	];
 </script>
@@ -85,17 +100,45 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</pre>
 
 <h3>Fonts</h3>
 <details>
-	<summary>Fira Sans — SIL Open Font License 1.1</summary>
+	<summary>Fira Sans: SIL Open Font License 1.1</summary>
 	<pre>{firaSansOfl}</pre>
 </details>
 <details>
-	<summary>Fira Code — SIL Open Font License 1.1</summary>
+	<summary>Fira Code: SIL Open Font License 1.1</summary>
 	<pre>{firaCodeOfl}</pre>
 </details>
 
-<h3>Software</h3>
-<ul>
+<h3>Software and assets</h3>
+<ul class="credits">
 	{#each thirdParty as item (item.name)}
-		<li><a href={item.url}>{item.name}</a> — {item.license}</li>
+		<li>
+			<a href={item.url}>{item.name}</a>
+			<span class="label">{item.license}</span>
+		</li>
 	{/each}
 </ul>
+
+<style>
+	.credits {
+		padding: 0;
+		list-style: none;
+	}
+	.credits li {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		margin: 0;
+		padding-block: 0.625rem;
+		border-block-end: 1px solid var(--border);
+	}
+	.credits .label {
+		flex-shrink: 0;
+		text-align: end;
+	}
+	details pre {
+		margin-block-end: 1rem;
+		font-size: 0.8125rem;
+		white-space: pre-wrap;
+	}
+</style>

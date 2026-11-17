@@ -1,6 +1,7 @@
 // Checks the built site in build/. Run after `bun run build`.
 // Reports initial JavaScript per page (modulepreloads + entry imports + their static imports);
 // chunks loaded later on demand are summarized separately.
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { gzipSync } from 'bun';
@@ -14,6 +15,14 @@ if (!existsSync(BUILD)) {
 	console.error('build/ not found; run `bun run build` first');
 	process.exit(1);
 }
+
+const inlineScripts = (html) =>
+	[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+const sha256 = (code) => `'sha256-${createHash('sha256').update(code).digest('base64')}'`;
+const isThemeScript = (code) => code.includes("localStorage.getItem('theme')");
+
+// Chunks are named by hash, so the simulation is recognized by its localStorage key.
+const SIMULATION_MARKER = 'simulation-paused';
 
 const read = (file) => readFileSync(path.join(BUILD, file), 'utf8');
 const walk = (dir) =>
@@ -74,7 +83,13 @@ for (const [file, home] of [
 	['blog/404.html', '/blog']
 ]) {
 	const html = read(file);
-	check(!html.includes('<script'), `${file} contains a <script>`);
+	// The only script allowed: app.html's inline theme script (no app JavaScript).
+	check(!/\/_app\/[^"']+\.js/.test(html), `${file} references app JavaScript`);
+	check(
+		inlineScripts(html).every(isThemeScript),
+		`${file} contains a script besides the theme script`
+	);
+	check(!/<script[^>]+src=/.test(html), `${file} loads an external script`);
 	check(html.includes(`href="${home}"`), `${file} does not link to ${home}`);
 }
 
@@ -82,7 +97,12 @@ const htmlFiles = files.filter((f) => f.endsWith('.html'));
 const jsRows = [];
 for (const file of htmlFiles) {
 	const html = read(file);
-	check(/<meta http-equiv="content-security-policy"/.test(html), `${file}: no CSP meta tag`);
+	const csp = /<meta http-equiv="content-security-policy" content="([^"]+)"/.exec(html)?.[1];
+	check(csp, `${file}: no CSP meta tag`);
+	for (const code of inlineScripts(html)) {
+		check(csp?.includes(sha256(code)), `${file}: an inline script is not allowed by the CSP`);
+	}
+	check(inlineScripts(html).some(isThemeScript), `${file}: missing the inline theme script`);
 	check(/<title>[^<]+<\/title>/.test(html), `${file}: no <title>`);
 	if (!html.includes('name="robots" content="noindex"')) {
 		check(html.includes('rel="canonical"'), `${file}: no canonical link`);
@@ -106,10 +126,12 @@ for (const file of htmlFiles) {
 	]);
 	let raw = 0;
 	let gz = 0;
+	let simulation = false;
 	for (const url of js) {
 		const data = readFileSync(path.join(BUILD, url));
 		raw += data.length;
 		gz += gzipSync(data).length;
+		simulation ||= data.includes(SIMULATION_MARKER);
 	}
 	jsRows.push({
 		page: file,
@@ -120,12 +142,15 @@ for (const file of htmlFiles) {
 	});
 
 	if (file.startsWith('blog')) {
-		check(
-			![...js].some((url) => /simulation|background/i.test(url)),
-			`${file}: loads the background simulation`
-		);
+		check(!simulation, `${file}: loads the background simulation`);
 	}
 }
+
+// The simulation must exist as an on-demand chunk, or the guard above checks nothing.
+check(
+	files.some((f) => f.endsWith('.js') && read(f).includes(SIMULATION_MARKER)),
+	'simulation code not found in the build'
+);
 
 // Sitemap and feed entries must point at built pages.
 const locs = [...read('sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);

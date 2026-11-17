@@ -3,7 +3,20 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#1e1e2e" />
+		<meta name="theme-color" content="#eff1f5" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#1e1e2e" media="(prefers-color-scheme: dark)" />
+		<!-- Applies a remembered theme before paint. Its CSP hash is computed in vite.config.js. -->
+		<script>
+			try {
+				var t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') {
+					document.documentElement.dataset.theme = t;
+					document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+						m.content = t === 'dark' ? '#1e1e2e' : '#eff1f5';
+					});
+				}
+			} catch (e) {}
+		</script>
 		<!-- Placeholder favicon copied from the old site; replace when the logo is final. -->
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="icon" href="/favicon.ico" sizes="any" />

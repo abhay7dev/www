@@ -1,6 +1,7 @@
 import { render } from 'svelte/server';
 import FeedRoot from '#lib/components/FeedRoot.svelte';
 import { index } from '#lib/blog/content.server.js';
+import { plainTitle } from '#lib/blog/format.js';
 import { toFeedHtml } from '#lib/feed/html.js';
 import { buildRss } from '#lib/feed/xml.js';
 import { site } from '#lib/site.js';
@@ -13,7 +14,11 @@ export function GET() {
 		const { body } = render(FeedRoot, {
 			props: { content: modules[`/src/content/blog/${post.source}`], url }
 		});
-		return { ...post, html: toFeedHtml(body, { origin: site.origin, url }) };
+		return {
+			...post,
+			title: plainTitle(post.title),
+			html: toFeedHtml(body, { origin: site.origin, url })
+		};
 	});
 	const xml = buildRss(
 		{ title: site.name, description: site.description, origin: site.origin, feedPath: '/rss.xml' },

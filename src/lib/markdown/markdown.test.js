@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { compile } from 'mdsvex';
 import { mdsvexOptions } from './options.js';
 import { injectImports } from './vite-plugin.js';
+import { tocText } from './rehype-toc.js';
 
 const md = (source) => compile(source, mdsvexOptions);
 
@@ -52,23 +53,30 @@ describe('images', () => {
 	});
 });
 
-test('headings get ids, anchor links, and a nested table of contents', async () => {
-	const { code, data } = await md('# One\n\n## Two\n\n### Three\n\n## Four\n');
-	expect(code).toContain('<h2 id="two">Two<a class="heading-anchor" href="#two">');
-	expect(code).toMatch(/class="visually-hidden"\s*>Link to section: Two<\/span>/);
+test('headings shift down a level, link to themselves, and build a nested TOC', async () => {
+	const { code, data } = await md('# One\n\n## Two\n\n### Three\n\n## Four\n\n###### Six\n');
+	expect(code).toContain('<h2 id="one"><a class="heading-link" href="#one">One</a></h2>');
+	expect(code).toContain('<h3 id="two"><a class="heading-link" href="#two">Two</a></h3>');
+	expect(code).toContain('<h6 id="six">');
+	expect(code).not.toContain('<h1');
 	expect(data.fm.toc).toEqual([
 		{
 			id: 'one',
 			text: 'One',
-			depth: 1,
+			depth: 2,
 			children: [
 				{
 					id: 'two',
 					text: 'Two',
-					depth: 2,
-					children: [{ id: 'three', text: 'Three', depth: 3, children: [] }]
+					depth: 3,
+					children: [{ id: 'three', text: 'Three', depth: 4, children: [] }]
 				},
-				{ id: 'four', text: 'Four', depth: 2, children: [] }
+				{
+					id: 'four',
+					text: 'Four',
+					depth: 3,
+					children: [{ id: 'six', text: 'Six', depth: 6, children: [] }]
+				}
 			]
 		}
 	]);
@@ -81,14 +89,20 @@ test('footnotes, scrollable tables, and Shiki highlighting', async () => {
 	);
 	expect(code).toContain('class="footnotes"');
 	expect(code).toContain('<div class="table-scroll"><table>');
-	expect(code).toContain('class="shiki catppuccin-mocha"');
+	expect(code).toContain('class="shiki shiki-themes catppuccin-latte catppuccin-mocha"');
+	expect(code).toContain('light-dark(');
+	expect(code).toContain(
+		'<div class="code-block"><div class="code-head"><span class="code-lang">js</span></div><pre'
+	);
 });
 
 test('mermaid blocks become an escaped placeholder; unknown languages fail', async () => {
 	const { code } = await md('```mermaid\ngraph TD; A-->B<br>\n```\n');
 	expect(code).toContain('<div class="mermaid" data-mermaid=""><pre><code>graph TD; A-->B&lt;br>');
 	expect(md('```notalanguage\nx\n```\n')).rejects.toThrow('Unknown code block language');
-	expect((await md('```\nplain {x}\n```\n')).code).toContain('class="shiki catppuccin-mocha"');
+	expect((await md('```\nplain {x}\n```\n')).code).toContain(
+		'class="shiki shiki-themes catppuccin-latte catppuccin-mocha"'
+	);
 });
 
 test('injectImports targets the module script or creates one', () => {
@@ -99,4 +113,21 @@ test('injectImports targets the module script or creates one', () => {
 		'<script module>\nimport x from "y";\n</script>\n<p>x</p>'
 	);
 	expect(injectImports('<p>x</p>', [])).toBe('<p>x</p>');
+});
+
+test.each([
+	['1. Install Node.js', 'Install Node.js'],
+	['2 - Install the Game', 'Install the Game'],
+	['3) Run it', 'Run it'],
+	['1.2. Nested', 'Nested'],
+	['- Dash item', 'Dash item'],
+	['* Star item', 'Star item'],
+	['The Good:', 'The Good'],
+	['4 - Finishing Up and Run!', 'Finishing Up and Run!'],
+	['3D graphics', '3D graphics'],
+	['2048 clone', '2048 clone'],
+	['e-mail - and more', 'e-mail - and more'],
+	['Time: 10:30', 'Time: 10:30']
+])('TOC text %p becomes %p', (input, output) => {
+	expect(tocText(input)).toBe(output);
 });

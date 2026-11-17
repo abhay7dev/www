@@ -1,28 +1,33 @@
-// Build-time Open Graph cards (1200×630 PNG). satori reads WOFF2 directly.
+// Build-time cards rendered with satori: Open Graph images (1200×630) and default project
+// thumbnails (1200×675). Always Mocha. satori reads WOFF2 directly.
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { readFileSync } from 'node:fs';
+import { flavors } from '#lib/theme/catppuccin.js';
 
-const font = (file) => readFileSync(`src/fonts/${file}`);
+const font = (name, file, weight) => ({
+	name,
+	data: readFileSync(`src/fonts/${file}`),
+	weight,
+	style: 'normal'
+});
 const fonts = [
-	{ name: 'Fira Sans', data: font('FiraSans-Regular-latin.woff2'), weight: 400, style: 'normal' },
-	{
-		name: 'Fira Sans',
-		data: font('FiraSans-Regular-latin-ext.woff2'),
-		weight: 400,
-		style: 'normal'
-	},
-	{ name: 'Fira Sans', data: font('FiraSans-Bold-latin.woff2'), weight: 700, style: 'normal' },
-	{ name: 'Fira Sans', data: font('FiraSans-Bold-latin-ext.woff2'), weight: 700, style: 'normal' }
+	font('Fira Sans', 'FiraSans-Regular-latin.woff2', 400),
+	font('Fira Sans', 'FiraSans-Regular-latin-ext.woff2', 400),
+	font('Fira Code', 'FiraCode-Regular.woff2', 400),
+	font('Fira Code', 'FiraCode-Bold.woff2', 700)
 ];
 
-// Catppuccin Mocha base / text / subtext0.
-const COLORS = { background: '#1e1e2e', text: '#cdd6f4', muted: '#a6adc8' };
+const { base, surface0, text, subtext0, lavender } = flavors.mocha;
 
 const el = (type, style, children) => ({ type, props: { style, children } });
 
-/** @param {{ title: string, description?: string, footer: string }} card */
-export async function renderCard({ title, description, footer }) {
+/**
+ * Title in Fira Code Bold, optional description in Fira Sans, footer line in Fira Code with a
+ * Lavender rule above it, matching the site's headings and labels.
+ * @param {{ title: string, description?: string, footer: string, height?: number }} card
+ */
+export async function renderCard({ title, description, footer, height = 630 }) {
 	const svg = await satori(
 		el(
 			'div',
@@ -34,19 +39,40 @@ export async function renderCard({ title, description, footer }) {
 				flexDirection: 'column',
 				justifyContent: 'space-between',
 				padding: 80,
-				background: COLORS.background,
-				color: COLORS.text,
-				fontFamily: 'Fira Sans'
+				background: base.hex,
+				border: `1px solid ${surface0.hex}`,
+				color: text.hex
 			},
 			[
-				el('div', { display: 'flex', flexDirection: 'column', gap: 24 }, [
-					el('div', { fontSize: 64, fontWeight: 700, lineHeight: 1.15 }, title),
-					...(description ? [el('div', { fontSize: 32, color: COLORS.muted }, description)] : [])
+				el('div', { display: 'flex', flexDirection: 'column', gap: 28 }, [
+					el(
+						'div',
+						{
+							fontFamily: 'Fira Code',
+							fontSize: 64,
+							fontWeight: 700,
+							lineHeight: 1.15,
+							letterSpacing: -1
+						},
+						title
+					),
+					...(description
+						? [
+								el(
+									'div',
+									{ fontFamily: 'Fira Sans', fontSize: 32, lineHeight: 1.4, color: subtext0.hex },
+									description
+								)
+							]
+						: [])
 				]),
-				el('div', { fontSize: 28, color: COLORS.muted }, footer)
+				el('div', { display: 'flex', flexDirection: 'column', gap: 20 }, [
+					el('div', { width: 64, height: 4, background: lavender.hex }, ''),
+					el('div', { fontFamily: 'Fira Code', fontSize: 28, color: subtext0.hex }, footer)
+				])
 			]
 		),
-		{ width: 1200, height: 630, fonts }
+		{ width: 1200, height, fonts }
 	);
 	return new Resvg(svg).render().asPng();
 }

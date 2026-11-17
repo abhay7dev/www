@@ -9,15 +9,16 @@ const PREFIX = `/${ROOT}/`;
 
 const modules = import.meta.glob('/src/content/blog/**/*.svx', { eager: true, import: 'metadata' });
 
-function listFiles() {
-	return readdirSync(ROOT, { recursive: true, withFileTypes: true })
+/** Every content file under `root`, relative to it and `/`-separated (dotfiles skipped). */
+export function listFiles(root) {
+	return readdirSync(root, { recursive: true, withFileTypes: true })
 		.filter((entry) => entry.isFile() && !entry.name.startsWith('.'))
-		.map((entry) => path.relative(ROOT, path.join(entry.parentPath, entry.name)))
+		.map((entry) => path.relative(root, path.join(entry.parentPath, entry.name)))
 		.map((file) => file.split(path.sep).join('/'));
 }
 
 export const index = buildIndex({
-	files: listFiles(),
+	files: listFiles(ROOT),
 	metadata: Object.fromEntries(
 		Object.entries(modules).map(([key, meta]) => [key.slice(PREFIX.length), meta])
 	),

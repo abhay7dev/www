@@ -1,0 +1,16 @@
+---
+# PLACEHOLDER: lorem ipsum project until the user adds real ones. Links point to example.com.
+title: Dolor sit
+description: Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+date: 2026-06-02
+images:
+  - src: placeholder-1.png
+    alt: Placeholder screenshot with green shapes
+stack: [Consectetur, Adipiscing]
+links:
+  repo: https://example.com/dolor-sit
+---
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+
+Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.

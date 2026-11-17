@@ -36,7 +36,7 @@ Set these in the Pages project (not automated by this repo):
 - **Article images:** a folder named like the post, next to it (`<slug>/fig.png`), referenced as `![alt](./<slug>/fig.png "optional caption")`.
 - **Components for articles:** `src/lib/components/content/` (`Callout`, `Tabs`/`Tab`, `YouTube`, `Tweet`, `Interactive`); import them in the article's `<script>`.
 - **Site-wide static files:** `static/` (copied as-is, never processed).
-- **Simulation (not chosen yet):** mount it in `src/routes/(site)/+layout.svelte`.
+- **Simulation (not chosen yet):** write it in `src/lib/simulation/sketch.js` (`setup` + `draw`; the Catppuccin palette is passed in). `simulation.js` handles the canvas, timing, pausing, and theme.
 
 ## Licensing
 

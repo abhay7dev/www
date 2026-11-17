@@ -10,5 +10,6 @@ export function entries() {
 export function load({ params }) {
 	const post = index.posts.find((p) => p.group === params.group && p.slug === params.slug);
 	if (!post) error(404, 'Not found');
-	return { kind: 'post', post, source: post.source };
+	const { title, url } = index.groups.find((g) => g.name === post.group);
+	return { kind: 'post', post, source: post.source, back: { title, url } };
 }

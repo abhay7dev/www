@@ -5,5 +5,5 @@
 </script>
 
 {#key data.source}
-	<Article post={data.post} content={data.content} />
+	<Article post={data.post} content={data.content} back={data.back} />
 {/key}

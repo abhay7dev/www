@@ -2,7 +2,7 @@
 
 Supplementary detail for the site. [AGENTS.md](AGENTS.md) is canonical and contains every decision; this file repeats them with extra implementation detail and rationale. If the two disagree, AGENTS.md wins. Keep both in sync when decisions change.
 
-Implementation status: all five milestones implemented and verified (2026-11-15).
+Implementation status: all five scaffold milestones implemented and verified (2026-11-15). Phase 4 design approved 2026-11-16; its full spec lives in AGENTS.md → Design (stages D1–D6), not repeated here.
 
 Status markers: **[confirmed]** user decided · **[recommended]** proposed, awaiting the user · **[open]** undecided · **[deferred]** postponed.
 
@@ -18,10 +18,10 @@ Phase 2 is delivered in order; each milestone builds and is verified before the 
 
 ## Pages
 
-- Homepage, About, Contact, Projects, Experience, Blog. [confirmed] Placeholder content only; never invented biography or details.
+- Homepage, About, Contact, Projects, Experience, Blog. [confirmed] Placeholder content is lorem ipsum sized to the slot; never invented biography or details.
 - Licenses page `/licenses`, linked from a one-line footer: own content license first, then implementation (AGPL), article code samples (MIT), then third-party licenses for everything shipped to readers. [confirmed]
-- Contact: static links — GitHub (URL [open]), LinkedIn `https://linkedin.com/in/abhaygbhat`, X `https://x.com/abhaygb7`; email and résumé present but disabled until supplied. No form. [confirmed]
-- Background simulation: not chosen [do not implement]. May run on all non-blog pages via a layout group; never under `/blog`. Persists across SPA navigation between non-blog pages. Requirements listed in AGENTS.md. [confirmed]
+- Contact: static links — GitHub `https://github.com/abhay7dev`, LinkedIn `https://linkedin.com/in/abhaygbhat`, X `https://x.com/abhaygb7`; email and résumé present but disabled until supplied. No form. [confirmed]
+- Background simulation: not chosen [do not implement the visual]; the scaffold module is approved (AGENTS.md → Design). Full strength on the homepage, dimmed on other non-blog pages; never under `/blog`. Persists across SPA navigation between non-blog pages. Requirements listed in AGENTS.md. [confirmed]
 
 ## 404 pages [confirmed]
 
@@ -47,9 +47,9 @@ Phase 2 is delivered in order; each milestone builds and is verified before the 
 ## Layout and CSS [confirmed]
 
 - Minimal, functional CSS. Mobile responsiveness and performance are requirements.
-- Colors as CSS custom properties (Catppuccin Mocha values) where color is needed now: callouts. No full theme yet.
-- Article layout: centered content column, about half the viewport on desktop (exact width [open]), full width with gutters on mobile.
-- Side table of contents on articles, generated from `#`–`######` headings with correct nesting. Mobile placement [open].
+- Colors as CSS custom properties. Full Mocha + Latte theme approved 2026-11-16 (AGENTS.md → Design).
+- Article layout: centered content column, `--measure: 70ch`, full width with gutters on mobile.
+- Side table of contents on articles, generated from `#`–`######` headings with correct nesting; sticky right at ≥ 75rem, collapsed `<details>` above the article otherwise.
 
 ## Blog model [confirmed]
 
@@ -57,7 +57,7 @@ Phase 2 is delivered in order; each milestone builds and is verified before the 
 - A directory is a group. One level only; nested groups fail the build.
 - Group landing page: `index.svx` in the group folder, frontmatter `title` + `description`, no `date`; the body is the landing page. `index` and `404` are reserved slugs.
 - URLs: `/blog/<slug>` standalone; `/blog/<group>/<slug>` grouped; `/blog/<group>` group page. Slug = file name. Slugs are unique across the whole blog, including group names.
-- Listing (`/blog`): standalone posts and groups interleaved, newest first. Standalone post sorts by `date`; a group sorts by its newest non-draft post. A group is `<details>`, closed by default; its `<summary>` contains the group title as a link to the group page; expanding shows its posts indented, newest first. No pagination anywhere.
+- Listing (`/blog`): standalone posts and groups interleaved, newest first. Standalone post sorts by `date`; a group sorts by its newest non-draft post. A group is `<details>` whose `<summary>` contains the group title as a link to the group page; its posts show indented, newest first. Prerendered open; opens on scroll with JS (changed 2026-11-16, see AGENTS.md). No pagination anywhere.
 - Ordering tie-break: date descending, then slug ascending.
 - Listing data comes from a `+page.server.js` at build time, so article modules never enter the listing's client bundle. [recommended]
 
@@ -92,7 +92,7 @@ Any invalid or missing required field fails the build with the file path in the 
 | Math | KaTeX at build time, `$inline$` / `$$display$$`; KaTeX CSS and fonts self-hosted from the `katex` package | confirmed |
 | Mermaid | Rendered client-side; the library loads only on articles containing a diagram; without JS, the diagram source shows as code | confirmed |
 | Footnotes | `[^1]` syntax, semantic links + backrefs | confirmed |
-| Heading permalinks | `id` on every heading + visible anchor link (`/post#section`) | confirmed |
+| Heading permalinks | `id` on every heading; heading text links to itself (`/post#section`), no visible marker; Markdown headings shifted down one level | confirmed |
 | Table of contents | Built from headings at build time, nested, side placement | confirmed |
 | Tables | GFM tables, horizontally scrollable on narrow screens | confirmed |
 | Callouts | Both GitHub-style `> [!NOTE]` syntax and a `<Callout type="…">` component; types note, tip, info, caution/warning, error/danger; Mocha colors via CSS variables | confirmed |
@@ -139,7 +139,7 @@ Old Hugo site (read-only). 8 standalone posts in `content/posts/`, images in `st
 
 - Convert TOML frontmatter to YAML; keep `title`, `date`, `description`; drop `author`.
 - `hello-world`: `2023-04-08T17:27:53-07:00` → `2023-04-08`.
-- `discordbot`: description is empty. **The user must supply it.**
+- `discordbot`: description was empty; supplied by the user.
 - Move images next to their posts; replace absolute `/post/x.png` paths.
 - Add `redirect_from: ["/posts/<slug>/"]` to each post.
 - Convert indented code blocks to fenced (mdsvex disables indented code). `discordbot.md` uses them.

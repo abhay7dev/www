@@ -20,18 +20,18 @@ export class ContentError extends Error {
 	name = 'ContentError';
 }
 
-function fail(file, message) {
+export function fail(file, message) {
 	throw new ContentError(`${file}: ${message}`);
 }
 
-function checkFields(meta, allowed, file) {
+export function checkFields(meta, allowed, file) {
 	if (meta === null || typeof meta !== 'object') fail(file, 'missing frontmatter');
 	for (const key of Object.keys(meta)) {
 		if (!allowed.has(key)) fail(file, `unknown frontmatter field "${key}"`);
 	}
 }
 
-function requireLine(value, file, field) {
+export function requireLine(value, file, field) {
 	if (typeof value !== 'string' || value.trim() === '') fail(file, `"${field}" is required`);
 	if (/[\r\n]/.test(value)) fail(file, `"${field}" must be a single line`);
 	return value.trim();
@@ -50,7 +50,7 @@ export function parseDate(value, file, field) {
 	return text;
 }
 
-function checkSlug(slug, file) {
+export function checkSlug(slug, file) {
 	if (!SLUG.test(slug)) fail(file, `"${slug}" must be lowercase letters, digits, and hyphens`);
 	if (RESERVED_SLUGS.has(slug)) fail(file, `"${slug}" is a reserved name`);
 }

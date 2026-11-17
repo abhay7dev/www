@@ -2,6 +2,7 @@
 	// Click-to-load: nothing is requested from YouTube until the reader chooses to play.
 	// Without JavaScript, and in the RSS feed, this is just a link.
 	import { getContext, onMount } from 'svelte';
+	import IconPlayerPlay from '@tabler/icons-svelte-runes/icons/player-play';
 
 	let { id, title } = $props();
 
@@ -30,9 +31,13 @@
 			allowfullscreen
 		></iframe>
 	{:else}
-		<p><a href="https://www.youtube.com/watch?v={id}">Watch “{title}” on YouTube</a></p>
-		{#if enhanced && !inFeed}
-			<button type="button" onclick={() => (playing = true)}>Play video here</button>
-		{/if}
+		<div class="video-placeholder">
+			{#if enhanced && !inFeed}
+				<button class="video-play" type="button" onclick={() => (playing = true)}>
+					<IconPlayerPlay size={18} stroke={1.75} aria-hidden="true" />Play video here
+				</button>
+			{/if}
+			<p><a href="https://www.youtube.com/watch?v={id}">Watch “{title}” on YouTube</a></p>
+		</div>
 	{/if}
 </figure>

@@ -1,9 +1,16 @@
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { enhancedImages } from '@sveltejs/enhanced-img';
 import { mdsvexOptions } from './src/lib/markdown/options.js';
 import { mdsvexFirst } from './src/lib/markdown/vite-plugin.js';
+
+// CSP hashes for the inline scripts in app.html (Kit only hashes the scripts it generates).
+const inlineScriptHashes = [
+	...readFileSync('src/app.html', 'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)
+].map(([, code]) => `sha256-${createHash('sha256').update(code).digest('base64')}`);
 
 export default defineConfig({
 	plugins: [
@@ -22,8 +29,9 @@ export default defineConfig({
 				mode: 'hash',
 				directives: {
 					'default-src': ['self'],
-					// Third parties load only on demand: giscus (comments) and X (embedded posts).
-					'script-src': ['self', 'https://giscus.app', 'https://platform.twitter.com'],
+					// Only X's widgets.js (on posts with an embed) runs third-party code. giscus is a
+					// bundled web component that only frames giscus.app (see frame-src).
+					'script-src': ['self', ...inlineScriptHashes, 'https://platform.twitter.com'],
 					// Shiki and Mermaid emit inline style attributes.
 					'style-src': ['self', 'unsafe-inline'],
 					'img-src': ['self', 'data:'],
@@ -43,10 +51,10 @@ export default defineConfig({
 			prerender: {
 				handleHttpError: 'fail',
 				handleMissingId: 'fail',
-				// Blog post routes are populated from content via entries(); they are legitimately empty
-				// when no published post (or grouped post) exists. Any other unseen route is a bug.
+				// Blog post routes and default project thumbnails are populated from content via entries();
+				// they are legitimately empty when there is nothing to build. Any other unseen route is a bug.
 				handleUnseenRoutes: ({ routes, message }) => {
-					const allowed = new Set(['/blog/[slug]', '/blog/[group]/[slug]']);
+					const allowed = new Set(['/blog/[slug]', '/blog/[group]/[slug]', '/projects/[slug].png']);
 					if (routes.some((route) => !allowed.has(route))) throw new Error(message);
 				}
 			},

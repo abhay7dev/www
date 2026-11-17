@@ -1,0 +1,4 @@
+{
+	"origins": ["https://abhay7.dev"],
+	"originsRegex": ["^http://localhost:(5173|4173)$"]
+}
